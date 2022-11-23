@@ -92,7 +92,8 @@ public class CoastGuard extends SearchProblem{
         }
         return result;
     }
-    public static String solve(String grid_string, String strategy, boolean visualize){
+
+    public static Cell [][] instantiateGrid(String grid_string){
         String [] grid_split = grid_string.split(";");
         // Initiate grid dimensions
         String [] dimensions = grid_split[0].split(",");
@@ -131,6 +132,10 @@ public class CoastGuard extends SearchProblem{
             }
             System.out.println();
         }
+        return grid;
+    }
+    public static String solve(String grid_string, String strategy, boolean visualize){
+        Cell [][] grid = instantiateGrid(grid_string);
         return "";
     }
     public static void main(String[] args) {
