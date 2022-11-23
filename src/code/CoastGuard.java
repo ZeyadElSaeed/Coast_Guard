@@ -10,7 +10,6 @@ public class CoastGuard extends SearchProblem{
     static int passenger_min = 1;
     static int passenger_max = 100;
     static int black_box_life = 20;
-    int
     public static  int GenerateRandomNumber( int max , int min ){
         return (int)(Math.random()*(max-min+1)+min);
     }
@@ -66,7 +65,7 @@ public class CoastGuard extends SearchProblem{
 
         }
 
-        String str_first = m+","+n+";"+ agent_capacity + "," + agent_row_loc + "," + agent_col_loc + ";";
+        String str_first = m+","+n+";"+ agent_capacity + ";" + agent_row_loc + "," + agent_col_loc + ";";
         String str_second = "";
         String str_third = "";
         for ( int i = 0; i<m; i++){
@@ -93,10 +92,57 @@ public class CoastGuard extends SearchProblem{
         }
         return result;
     }
-    public String solve(String grid, String strategy, boolean visualize){
+    public static String solve(String grid_string, String strategy, boolean visualize){
+        String [] grid_split = grid_string.split(";");
+        // Initiate grid dimensions
+        String [] dimensions = grid_split[0].split(",");
+        Cell [][] grid = new Cell[Integer.parseInt(dimensions[0])][Integer.parseInt(dimensions[1])];
+
+
+        // creating and localizing agent
+        int agent_capacity = Integer.parseInt(grid_split[1]);
+        String [] agent_position = grid_split[2].split(",");
+        grid[Integer.parseInt(agent_position[0])][Integer.parseInt(agent_position[1])] =
+                new Agent(Integer.parseInt(agent_position[0]), Integer.parseInt(agent_position[1]), agent_capacity);
+
+
+        // creating and localizing Stations
+        String [] stations_position = grid_split[3].split(",");
+        for(int i =0;i<stations_position.length;i=i+2){
+            grid[Integer.parseInt(stations_position[i])][Integer.parseInt(stations_position[i+1])] =
+                    new Station(Integer.parseInt(stations_position[i]), Integer.parseInt(stations_position[i+1]));
+        }
+        // creating and localizing ships
+        String [] ships_position = grid_split[4].split(",");
+        for(int i =0;i<ships_position.length;i=i+3){
+            grid[Integer.parseInt(ships_position[i])][Integer.parseInt(ships_position[i+1])] =
+                    new Ship(Integer.parseInt(ships_position[i]), Integer.parseInt(ships_position[i+1]), Integer.parseInt(ships_position[i+2]));
+        }
+        // Initializing Empty cells
+        for(int i=0;i<grid.length;i++){
+            for(int j=0;j<grid[i].length;j++){
+                if(grid[i][j]==null)grid[i][j] = new Cell(i,j);
+            }
+        }
+        // print
+        for(int i=0;i<grid.length;i++){
+            for(int j=0;j<grid[i].length;j++){
+                System.out.print(grid[i][j] + " ");
+            }
+            System.out.println();
+        }
         return "";
     }
     public static void main(String[] args) {
-        genGrid();
+//         genGrid();
+         solve(genGrid(),"",false);
+//        String [][] grid = new String [13][5];
+//        for(int i=0;i<grid.length;i++){
+//            for(int j=0;j<grid[i].length;j++){
+//                grid[i][j] = i + j + " ";
+//                System.out.print(grid[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
     }
 }
