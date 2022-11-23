@@ -1,6 +1,8 @@
+package code;
+
 import java.lang.Math;
 
-public class Main {
+public class CoastGuard extends SearchProblem{
     static int grid_min = 5;
     static int grid_max = 15;
     static int agent_min = 30;
@@ -8,6 +10,7 @@ public class Main {
     static int passenger_min = 1;
     static int passenger_max = 100;
     static int black_box_life = 20;
+    int
     public static  int GenerateRandomNumber( int max , int min ){
         return (int)(Math.random()*(max-min+1)+min);
     }
@@ -89,6 +92,9 @@ public class Main {
             System.out.println(" ");
         }
         return result;
+    }
+    public String solve(String grid, String strategy, boolean visualize){
+        return "";
     }
     public static void main(String[] args) {
         genGrid();
