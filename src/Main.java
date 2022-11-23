@@ -1,21 +1,18 @@
 import java.lang.Math;
 
 public class Main {
+    static int grid_min = 5;
+    static int grid_max = 15;
+    static int agent_min = 30;
+    static int agent_max = 100;
+    static int passenger_min = 1;
+    static int passenger_max = 100;
+    static int black_box_life = 20;
     public static  int GenerateRandomNumber( int max , int min ){
         return (int)(Math.random()*(max-min+1)+min);
     }
-
-    public static void main(String[] args) {
-        int grid_min = 5;
-        int grid_max = 15;
-        int agent_min = 30;
-        int agent_max = 100;
-        int passenger_min = 1;
-        int passenger_max = 100;
-
-
+    public static String genGrid(){
         // Initialize The size of the grid
-
         int m = GenerateRandomNumber( grid_max , grid_min );
         int n = GenerateRandomNumber( grid_max , grid_min );
         int cells_number = m * n;
@@ -29,10 +26,10 @@ public class Main {
         // Generate the location of the coast guard ship
         int agent_row_loc = GenerateRandomNumber( m-1 , 0 );
         int agent_col_loc = GenerateRandomNumber( n-1 , 0 );
-        grid[ agent_row_loc ][ agent_col_loc ] = -1;
+        grid[ agent_row_loc ][ agent_col_loc ] = -1; // here
 
         // Generate the number of the ships
-        int ship_number = GenerateRandomNumber( cells_number , 1 );
+        int ship_number = GenerateRandomNumber( cells_number-2 , 1 );
         System.out.println("ship_number: "+ ship_number);
         // Generate the number of the stations ( The remaining number after ships and agent)
         int remain_locations = cells_number - ship_number ;
@@ -59,7 +56,7 @@ public class Main {
                 int row = GenerateRandomNumber(m - 1, 0);
                 int col = GenerateRandomNumber(n - 1, 0);
                 if ( grid[row][col] == 0){
-                    grid[row][col] = -55;
+                    grid[row][col] = -55; //troll
                     flag = false;
                 }
             }
@@ -79,18 +76,10 @@ public class Main {
                 }
             }
         }
-        StringBuilder str1 = new StringBuilder(str_second);
-        str1.setCharAt( str_second.length()- 1, ';');
-
-        StringBuilder str2 = new StringBuilder(str_third);
-        str2.setCharAt( str_third.length() - 1, ';');
-
-        String result = str_first + str1 + str2 ;
-
-
-        System.out.println( result );
-
-
+        str_second = str_second.substring(0,str_second.length()-1)+";";
+        str_third = str_third.substring(0,str_third.length()-1)+";";
+        String result = str_first + str_second + str_third;
+        System.out.println(result);
         for (int [] x:
                 grid) {
             for (int y:
@@ -99,7 +88,9 @@ public class Main {
             }
             System.out.println(" ");
         }
-        }
-
-
+        return result;
+    }
+    public static void main(String[] args) {
+        genGrid();
+    }
 }
