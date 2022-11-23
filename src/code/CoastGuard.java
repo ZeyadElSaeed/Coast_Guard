@@ -136,6 +136,12 @@ public class CoastGuard extends SearchProblem{
     }
     public static String solve(String grid_string, String strategy, boolean visualize){
         Cell [][] grid = instantiateGrid(grid_string);
+        switch(strategy){
+            case "BF":// implement breadth-first search
+                break;
+            case "DF":// implement depth-first search
+                break;
+        }
         return "";
     }
     public static void main(String[] args) {
