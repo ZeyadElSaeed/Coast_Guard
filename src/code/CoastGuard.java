@@ -10,8 +10,19 @@ public class CoastGuard extends SearchProblem{
     static int passenger_min = 1;
     static int passenger_max = 100;
     static int black_box_life = 20;
+
+
+    public CoastGuard(Cell[][]grid){
+        this.operators = new String[]{"up","down","right","left","pickup","drop","retrieve"};
+        //
+        this.initial_state = new StateNode("",null,null,0,0);
+        this.state_space = new StateNode[2*grid.length];
+    }
     public static  int GenerateRandomNumber( int max , int min ){
         return (int)(Math.random()*(max-min+1)+min);
+    }
+    public boolean goal_test(StateNode node){
+        return true;
     }
     public static String genGrid(){
         // Initialize The size of the grid
@@ -136,6 +147,7 @@ public class CoastGuard extends SearchProblem{
     }
     public static String solve(String grid_string, String strategy, boolean visualize){
         Cell [][] grid = instantiateGrid(grid_string);
+        CoastGuard problem = new CoastGuard(grid);
         switch(strategy){
             case "BF":// implement breadth-first search
                 break;
@@ -145,15 +157,6 @@ public class CoastGuard extends SearchProblem{
         return "";
     }
     public static void main(String[] args) {
-//         genGrid();
          solve(genGrid(),"",false);
-//        String [][] grid = new String [13][5];
-//        for(int i=0;i<grid.length;i++){
-//            for(int j=0;j<grid[i].length;j++){
-//                grid[i][j] = i + j + " ";
-//                System.out.print(grid[i][j] + " ");
-//            }
-//            System.out.println();
-//        }
     }
 }
