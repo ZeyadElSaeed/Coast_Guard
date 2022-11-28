@@ -8,11 +8,11 @@ public class Cell {
         this.j = j;
     }
     public String toString(){
-        String type = " Empty";
-        if (this instanceof Agent) type = " Agent";
-        if (this instanceof Station) type = " Station";
-        if (this instanceof Ship) type = " Ship";
-        return i+" " + j + type;
+        String type = " Em";
+        if (this instanceof Agent) type = " Ag";
+        if (this instanceof Station) type = " St";
+        if (this instanceof Ship) type = " Sh";
+        return type;
     }
 }
 class Ship extends Cell{
