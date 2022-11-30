@@ -2,13 +2,18 @@ package code;
 
 public class Ship extends Cell{
     public int no_of_passengers;
-    int blackbox_damage = 0;
+    int blackbox_damage;
 
     public Ship(int i, int j, int no_of_passengers){
         super(i,j);
         this.no_of_passengers = no_of_passengers;
         blackbox_damage = 0;
     }
+	public Ship(int i, int j, int no_of_passengers, int blackbox_damage){
+		super(i,j);
+		this.no_of_passengers = no_of_passengers;
+		this.blackbox_damage = blackbox_damage;
+	}
 	public boolean hasBlackBox() {
 		return blackbox_damage<20;
 	}
@@ -38,6 +43,6 @@ public class Ship extends Cell{
 		}
 	}
 	public Ship clone() {
-		return new Ship(i,j,no_of_passengers);
+		return new Ship(i,j,no_of_passengers,blackbox_damage);
 	}
 }

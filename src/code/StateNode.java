@@ -52,7 +52,7 @@ public class StateNode {
 				}
 			}
 		}
-		return agent.getPassengersOnBoard()==0;
+		return agent.getPassengersOnBoard()==0 && agent.getBlackBoxes()==0;
 	}
 	public StateNode clone() {
 		//does this deep copy the grid or not?
@@ -158,9 +158,9 @@ public class StateNode {
 		return padded;
 	}
     
-	public String toString() {
-		visualizeGrid();
-		return operator +" "+ depth + " " + path_cost + " " + agent.getI() + " " + agent.getJ();
-	}
-	
+//	public String toString() {
+//		visualizeGrid();
+//		return operator +" "+ depth + " " + path_cost + " " + agent.getI() + " " + agent.getJ();
+//	}
+//
 }

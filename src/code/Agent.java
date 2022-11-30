@@ -10,10 +10,11 @@ public class Agent extends Cell{
         remaining_capacity = max_capacity;
     }
     
-    public Agent(int i, int j, int max_capacity, int remaining_capacity){
+    public Agent(int i, int j, int max_capacity, int remaining_capacity, int blackBoxes){
         super(i,j);
         this.max_capacity = max_capacity;
         this.remaining_capacity = remaining_capacity;
+        this.blackBoxes = blackBoxes;
         
     }
     public int getMaxCapacity() {
@@ -43,9 +44,9 @@ public class Agent extends Cell{
     	return remaining_capacity>0;
     }
     public Agent copyAgentWithModification(int i, int j) {
-    	return new Agent(i, j, this.max_capacity, this.remaining_capacity);
+    	return new Agent(i, j, this.max_capacity, this.remaining_capacity, this.blackBoxes);
     }
-    public Agent copyAgentWithModification(int i, int j, int newCapacity) {
-    	return new Agent(i, j, this.max_capacity, this.max_capacity-newCapacity);
+    public Agent copyAgentWithModification(int i, int j, int newCapacity, int blackBoxes) {
+    	return new Agent(i, j, this.max_capacity, this.max_capacity-newCapacity, blackBoxes);
     }
 }

@@ -6,8 +6,8 @@ import java.util.Queue;
 import java.util.*;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 1;
-    static int grid_max = 2;
+    static int grid_min = 3;
+    static int grid_max = 3;
     static int agent_min = 30;
     static int agent_max = 100;
     static int passenger_min = 1; //why not 0 as in the description?
@@ -309,7 +309,7 @@ public class CoastGuard extends SearchProblem{
     public void solveBFS() {
     	while(!searchQueue.isEmpty()) {
     		StateNode peek = searchQueue.remove();
-    		if (peek.operator == "") {
+    		if (peek.operator == "pickup") {
     			System.out.println();
     		}
     		if (peek.operator == "retrieve") {
@@ -380,12 +380,12 @@ public class CoastGuard extends SearchProblem{
     		Cell [][]pickupGrid = cloneGrid(parent.getGrid());
     		Ship ship = ((Ship)(pickupGrid[agent.getI()][agent.getJ()]));
     		int retrievablePeople= Math.min(agent.getRemainingCapacity(), ship.getNoOfPassengers());
-    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(), agent.getPassengersOnBoard() + retrievablePeople);
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(), agent.getPassengersOnBoard() + retrievablePeople, agent.getBlackBoxes());
     		// update passengers on board the ship of the new Grid
     		ship.setNoOfPassengers(ship.getNoOfPassengers()-retrievablePeople);
         	neighbors.add(new StateNode(generalUpdateState(pickupGrid), newAgent , parent,"pickup",parent.depth+1,parent.path_cost+1));
     	}
-
+		// retrieve
     	else if(currentCell instanceof Ship && ((Ship)(currentCell)).isWreck() && ((Ship)(currentCell)).hasBlackBox()) {
     		Cell [][]retrieveGrid = cloneGrid(parent.getGrid());
     		Ship ship = ((Ship)(retrieveGrid[agent.getI()][agent.getJ()]));
@@ -395,10 +395,11 @@ public class CoastGuard extends SearchProblem{
     		// update the box on the ship
         	neighbors.add(new StateNode(generalUpdateState(retrieveGrid), newAgent , parent,"retrieve",parent.depth+1,parent.path_cost+1));
     	}
+		// drop
     	if(currentCell instanceof Station && agent.getPassengersOnBoard()>0) {
     		Cell [][]dropGrid = cloneGrid(newGrid);
     		//int dropablePeople= agent.getPassengersOnBoard();
-    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(),0);
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(),0,0);
     		newAgent.setPassengersOnBoard(0);
     		newAgent.setBlackBoxes(0);
         	neighbors.add(new StateNode(dropGrid, newAgent , parent,"drop",parent.depth+1,parent.path_cost+1));
@@ -430,7 +431,8 @@ public class CoastGuard extends SearchProblem{
     public static void main(String[] args) {
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
 //    	solve("2,2;63;0,1;1,1;0,0,7;","BF",false);
-    	solve(genGrid(),"BF",false);
+//    	solve("2,1;77;1,0;1,0;0,0,10;","BF",false);
+		solve(genGrid(),"BF",false);
 //    	problem.solve(null, null, false)
 //      solve(genGrid(),"BF",false);
 //    	Cell[][] grid = instantiateGrid(genGrid());
