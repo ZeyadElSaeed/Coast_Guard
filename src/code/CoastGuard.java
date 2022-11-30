@@ -6,7 +6,7 @@ import java.util.Queue;
 import java.util.*;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 2;
+    static int grid_min = 1;
     static int grid_max = 2;
     static int agent_min = 30;
     static int agent_max = 100;
@@ -309,6 +309,15 @@ public class CoastGuard extends SearchProblem{
     public void solveBFS() {
     	while(!searchQueue.isEmpty()) {
     		StateNode peek = searchQueue.remove();
+    		if (peek.operator == "") {
+    			System.out.println();
+    		}
+    		if (peek.operator == "retrieve") {
+    			System.out.println();
+    		}
+    		if (peek.operator == "drop") {
+    			System.out.println();
+    		}
     		visualizeGrid(peek);
     		if(peek.isGoal()) {
     			return;
@@ -325,30 +334,49 @@ public class CoastGuard extends SearchProblem{
     		}
     	}
     }
+    
+    public static boolean repeatedAncestorsAgentPositions(StateNode node, int i, int j) {
+    	if (node.parent == null) {
+    		return false;
+    	}
+    	else if (node.operator=="up" || node.operator=="right" || node.operator=="left" || node.operator=="down"){
+    		StateNode parent = node.parent;
+    		if(parent.agent.getI()==i && parent.agent.getJ() == j) {
+    			return true;
+    		}
+    		else {
+    			return repeatedAncestorsAgentPositions(parent,i,j);
+    		}
+    	}
+    	else {
+    		return false;
+    	}
+    } 
+    
     public static ArrayList<StateNode> getNextStates(StateNode parent) {
     	ArrayList<StateNode> neighbors= new ArrayList<StateNode>();
     	// update parent state
     	Agent agent = parent.agent;
 //    	Cell[][] grid = parent.grid;
     	Cell[][] newGrid= generalUpdateState(cloneGrid(parent.getGrid()));
-    	if(agent.getI()<height-1 && parent.operator!="up") {
+    	if(agent.getI()<height-1 && !repeatedAncestorsAgentPositions(parent, agent.getI() +1, agent.getJ())) {
     		Agent newAgent = agent.copyAgentWithModification(agent.getI() +1, agent.getJ());
     		neighbors.add(new StateNode(newGrid,newAgent,parent,"down",parent.depth+1,parent.path_cost+1));
     	}
-    	if(agent.getI()>0 && parent.operator!="down") {
+    	if(agent.getI()>0 && !repeatedAncestorsAgentPositions(parent, agent.getI() - 1, agent.getJ())) {
     		Agent newAgent = agent.copyAgentWithModification(agent.getI() -1, agent.getJ());
     		neighbors.add(new StateNode(newGrid,newAgent,parent,"up",parent.depth+1,parent.path_cost+1));
     	}
-    	if(agent.getJ()<width-1 && parent.operator!="left") {
+    	if(agent.getJ()<width-1 && !repeatedAncestorsAgentPositions(parent, agent.getI(), agent.getJ() +1)) {
     		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ()+1);
     		neighbors.add(new StateNode(newGrid,newAgent,parent, "right",parent.depth+1,parent.path_cost+1));
     	}
-    	if(agent.getJ()>0 && parent.operator!="right") {
+    	if(agent.getJ()>0 && !repeatedAncestorsAgentPositions(parent, agent.getI(), agent.getJ() -1)) {
     		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ()-1);
     		neighbors.add(new StateNode(newGrid, newAgent, parent, "left",parent.depth+1,parent.path_cost+1));
     	}
     	Cell currentCell = newGrid[agent.getI()][agent.getJ()];
-    	if(currentCell instanceof Ship && !((Ship)(currentCell)).isWreck()) {
+    	if(currentCell instanceof Ship && !((Ship)(currentCell)).isWreck() && agent.getRemainingCapacity()>0) {
     		Cell [][]pickupGrid = cloneGrid(parent.getGrid());
     		Ship ship = ((Ship)(pickupGrid[agent.getI()][agent.getJ()]));
     		int retrievablePeople= Math.min(agent.getRemainingCapacity(), ship.getNoOfPassengers());
@@ -362,6 +390,7 @@ public class CoastGuard extends SearchProblem{
     		Cell [][]retrieveGrid = cloneGrid(parent.getGrid());
     		Ship ship = ((Ship)(retrieveGrid[agent.getI()][agent.getJ()]));
     		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ());
+    		newAgent.setBlackBoxes(newAgent.getBlackBoxes()+1);
     		ship.setBlackBoxDamage(20);
     		// update the box on the ship
         	neighbors.add(new StateNode(generalUpdateState(retrieveGrid), newAgent , parent,"retrieve",parent.depth+1,parent.path_cost+1));
@@ -371,6 +400,7 @@ public class CoastGuard extends SearchProblem{
     		//int dropablePeople= agent.getPassengersOnBoard();
     		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(),0);
     		newAgent.setPassengersOnBoard(0);
+    		newAgent.setBlackBoxes(0);
         	neighbors.add(new StateNode(dropGrid, newAgent , parent,"drop",parent.depth+1,parent.path_cost+1));
 
     	}
@@ -399,6 +429,7 @@ public class CoastGuard extends SearchProblem{
     }
     public static void main(String[] args) {
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
+//    	solve("2,2;63;0,1;1,1;0,0,7;","BF",false);
     	solve(genGrid(),"BF",false);
 //    	problem.solve(null, null, false)
 //      solve(genGrid(),"BF",false);

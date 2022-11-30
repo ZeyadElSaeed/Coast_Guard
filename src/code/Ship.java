@@ -25,7 +25,7 @@ public class Ship extends Cell{
 		this.blackbox_damage = (this.blackbox_damage > 20) ? 20:blackbox_damage;
 	}
 	public boolean isWreck() {
-		if(no_of_passengers == 0 ) return true;
+		if(no_of_passengers == 0) return true;
 		return false;
 	}
 	public void decrement() {
@@ -35,9 +35,6 @@ public class Ship extends Cell{
 		}
 		else if(blackbox_damage<20){
 				blackbox_damage++;
-		}
-		else {
-			return;
 		}
 	}
 	public Ship clone() {

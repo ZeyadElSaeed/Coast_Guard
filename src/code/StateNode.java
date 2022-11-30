@@ -20,10 +20,26 @@ public class StateNode {
 
 	public boolean isGoal() {
     	// case 1 
-    	
+    	if(endGame()) {
+    		printPath();
+    		System.out.println(agent.getBlackBoxes());
+    	}
     	
     	return endGame();
     }
+	
+	public void printPath() {
+		if(this.parent!=null) {
+			parent.printPath();
+			System.out.print("," + operator);
+		}
+		else {
+			System.out.println("-----------------------------------------");
+			visualizeGrid();
+		}
+		
+		
+	}
 
 	public boolean endGame() {
 		for (int i = 0; i < grid.length; i++) {
@@ -71,31 +87,77 @@ public class StateNode {
 		this.grid = grid;
 	}
 
-	public  void visualizeGrid() {
+	public void visualizeGrid() {
+		Cell[][] grid = getGrid();
+		Agent agent = getAgent();
 		int col_index=0;
-		String pad_space = "  ";
-		System.out.print(" -1 |");
+
+		System.out.print(pad_string(-1)+ "|");
 		for(int row_index=0;row_index<grid[0].length;row_index++){
-			
-			if(row_index>9) {
-				pad_space =" ";
-			}
-			System.out.print("  "+row_index + pad_space+ "|");
+
+			System.out.print(pad_string(row_index )+"|");
 		}
         System.out.println();
-        pad_space = "  ";
+
 		for(int i=0;i<grid.length;i++){
-			if(col_index>9) {
-				pad_space =" ";
-			}
-			System.out.print(" "+ col_index++ + pad_space+ "| ");
+
+			System.out.print(pad_string(col_index++)+"|");
             for(int j=0;j<grid[i].length;j++){
-                System.out.print(grid[i][j] + " | ");
+            	if(agent.getI()== i && agent.getJ() ==j){
+            		if(grid[i][j] instanceof Ship) {
+            			System.out.print(pad_string(((Ship)(grid[i][j])).getNoOfPassengers()+"*") + "|");
+            		}
+            		else {
+            			System.out.print(pad_string(grid[i][j] + "*")+"|");
+            		}
+            		
+            	}
+            	else{
+            		if(grid[i][j] instanceof Ship) {
+            			System.out.print(pad_string(((Ship)(grid[i][j])).getNoOfPassengers()) + "|");
+            		}
+            		else {
+            			System.out.print(pad_string(grid[i][j]+"")+"|");
+            		}
+            		
+
+            		
+            	}
             }
             System.out.println();
         }
+		System.out.println("--------------------"+"depth:"+ depth+", cost:"+ path_cost+
+				",operator: " + operator + ",capacity:"+ agent.getRemainingCapacity()+ "--------------------");
 	}
-	
+	private static String pad_string(String str) {
+    	String padded="";
+    	switch((str).length()) {
+    	case 1:
+    		padded = "  "+ str+"  ";
+    		break;
+    	case 2:
+    		padded = " "+ str+"  ";
+    		break;
+    	case 3:
+    		padded = " "+ str+" ";
+    	}
+		return padded;
+	}
+	private static String pad_string(int col) {
+    	String padded="";
+    	switch((""+col).length()) {
+    	case 1:
+    		padded = "  "+ col+"  ";
+    		break;
+    	case 2:
+    		padded = " "+ col+"  ";
+    		break;
+    	case 3:
+    		padded = " "+ col+" ";
+    	}
+		return padded;
+	}
+    
 	public String toString() {
 		visualizeGrid();
 		return operator +" "+ depth + " " + path_cost + " " + agent.getI() + " " + agent.getJ();

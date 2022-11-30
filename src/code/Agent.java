@@ -3,6 +3,7 @@ package code;
 public class Agent extends Cell{
     int max_capacity;
     int remaining_capacity;
+    int blackBoxes=0;
     public Agent(int i, int j, int max_capacity){
         super(i,j);
         this.max_capacity = max_capacity;
@@ -21,7 +22,15 @@ public class Agent extends Cell{
     public int getRemainingCapacity() {
     	return remaining_capacity;
     }
-    public int getPassengersOnBoard() {
+    public int getBlackBoxes() {
+		return blackBoxes;
+	}
+
+	public void setBlackBoxes(int blackBoxes) {
+		this.blackBoxes = blackBoxes;
+	}
+
+	public int getPassengersOnBoard() {
     	return max_capacity - remaining_capacity;
     }
     public void setPassengersOnBoard(int passengerNumber) {
