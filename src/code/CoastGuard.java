@@ -1,26 +1,47 @@
 package code;
 
 import java.lang.Math;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.*;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 5;
-    static int grid_max = 15;
+    static int grid_min = 2;
+    static int grid_max = 2;
     static int agent_min = 30;
     static int agent_max = 100;
     static int passenger_min = 1; //why not 0 as in the description?
-    static int passenger_max = 100;
-    static int black_box_life = 20;
-
-
-    public CoastGuard(Cell[][]grid){
+    static int passenger_max = 10;
+    static int black_box_life = 4;
+    Queue<StateNode> searchQueue;
+    Map <String, StateNode> isVisitedDict = new Hashtable<String, StateNode>();
+    // Agent agent;
+    static int width;
+    static int height;
+    static ArrayList<int[]>ships_positions;
+    public CoastGuard(Object [] info){
+    	Cell [][]initialGrid = ((Cell [][])(info[0]));
+    	Agent agent = ((Agent)(info[1]));
         this.operators = new String[]{"up","down","right","left","pickup","drop","retrieve"};
-        //
-        this.initial_state = new StateNode("",null,null,0,0);
-        this.state_space = new StateNode[2*grid.length];
+        searchQueue = new LinkedList<StateNode>(); 
+        this.initial_state = new StateNode(initialGrid,agent, null,null,0,0);
+        searchQueue.add(initial_state);
+        isVisitedDict.put(agent.getI()+","+agent.getJ(),initial_state);
+        height = initialGrid.length;
+        width = initialGrid[0].length;
+        // pass grid copy as input
+        //do search queue here and the visited DS
+        //how to check if we visited some node before? implement equals for grid?
+        //make each state node check if it has passed its specific goal
+        //if yes initialize the queue again and reset the visited DS
+        this.state_space = new StateNode[2*initialGrid.length];
     }
     
     
-    public static  int GenerateRandomNumber( int max , int min ){
+    
+
+
+	public static  int GenerateRandomNumber( int max , int min ){
         return (int)(Math.random()*(max-min+1)+min);
     }
     public boolean goal_test(StateNode node){
@@ -41,10 +62,10 @@ public class CoastGuard extends SearchProblem{
         // Generate the location of the coast guard ship
         int agent_row_loc = GenerateRandomNumber( m-1 , 0 );
         int agent_col_loc = GenerateRandomNumber( n-1 , 0 );
-        grid[ agent_row_loc ][ agent_col_loc ] = -1; // here
-
+//        grid[ agent_row_loc ][ agent_col_loc ] = -1; // here
+        System.out.println("Agent_position: "+ agent_row_loc +" "+ agent_col_loc);
         // Generate the number of the ships
-        int ship_number = GenerateRandomNumber( cells_number-2 , 1 );
+        int ship_number = GenerateRandomNumber( cells_number-1 , 1 );
         System.out.println("ship_number: "+ ship_number);
         // Generate the number of the stations ( The remaining number after ships and agent)
         int remain_locations = cells_number - ship_number ;
@@ -123,7 +144,22 @@ public class CoastGuard extends SearchProblem{
     	}
 		return padded;
 	}
-	public static Cell [][] instantiateGrid(String grid_string){
+    
+    private static String pad_string(String str) {
+    	String padded="";
+    	switch((str).length()) {
+    	case 1:
+    		padded = "  "+ str+"  ";
+    		break;
+    	case 2:
+    		padded = " "+ str+"  ";
+    		break;
+    	case 3:
+    		padded = " "+ str+" ";
+    	}
+		return padded;
+	}
+	public static Object[] instantiateGrid(String grid_string){
         String [] grid_split = grid_string.split(";");
         // Initiate grid dimensions
         String [] dimensions = grid_split[0].split(",");
@@ -133,8 +169,8 @@ public class CoastGuard extends SearchProblem{
         // creating and localizing agent
         int agent_capacity = Integer.parseInt(grid_split[1]);
         String [] agent_position = grid_split[2].split(",");
-        grid[Integer.parseInt(agent_position[0])][Integer.parseInt(agent_position[1])] =
-                new Agent(Integer.parseInt(agent_position[0]), Integer.parseInt(agent_position[1]), agent_capacity);
+//        grid[Integer.parseInt(agent_position[0])][Integer.parseInt(agent_position[1])] =
+        Agent agent = new Agent(Integer.parseInt(agent_position[0]), Integer.parseInt(agent_position[1]), agent_capacity);
 
 
         // creating and localizing Stations
@@ -144,10 +180,12 @@ public class CoastGuard extends SearchProblem{
                     new Station(Integer.parseInt(stations_position[i]), Integer.parseInt(stations_position[i+1]));
         }
         // creating and localizing ships
-        String [] ships_position = grid_split[4].split(",");
-        for(int i =0;i<ships_position.length;i=i+3){
-            grid[Integer.parseInt(ships_position[i])][Integer.parseInt(ships_position[i+1])] =
-                    new Ship(Integer.parseInt(ships_position[i]), Integer.parseInt(ships_position[i+1]), Integer.parseInt(ships_position[i+2]));
+        String [] ships_position_string = grid_split[4].split(",");
+        ships_positions = new ArrayList<int[]>();
+        for(int i =0;i<ships_position_string.length;i=i+3){
+            grid[Integer.parseInt(ships_position_string[i])][Integer.parseInt(ships_position_string[i+1])] =
+                    new Ship(Integer.parseInt(ships_position_string[i]), Integer.parseInt(ships_position_string[i+1]), Integer.parseInt(ships_position_string[i+2]));
+            ships_positions.add(new int[] {Integer.parseInt(ships_position_string[i]), Integer.parseInt(ships_position_string[i+1])});
         }
         // Initializing Empty cells
         for(int i=0;i<grid.length;i++){
@@ -157,38 +195,102 @@ public class CoastGuard extends SearchProblem{
         }
         // print
         System.out.println("------------------------------------------------------------------");
-        visualizeGrid(grid);
-        return grid;
+        
+//        visualizeGrid(grid, agent);
+//        System.out.println(agent);
+        return new Object [] {grid,agent};
     }
-	public static void visualizeGrid(Cell [][] grid) {
+	public static void visualizeGrid(Cell [][] grid, Agent agent) {
 		int col_index=0;
-		String pad_space = "  ";
-		System.out.print(" -1 |");
+//		String pad_space = "  ";
+		System.out.print(pad_string(-1)+ "|");
 		for(int row_index=0;row_index<grid[0].length;row_index++){
 			
-			if(row_index>9) {
-				pad_space =" ";
-			}
-			System.out.print("  "+row_index + pad_space+ "|");
+//			if(row_index>9) {
+//				pad_space =" ";
+//			}
+			System.out.print(pad_string(row_index )+"|");
 		}
         System.out.println();
-        pad_space = "  ";
+//        pad_space = "  ";
 		for(int i=0;i<grid.length;i++){
-			if(col_index>9) {
-				pad_space =" ";
-			}
-			System.out.print(" "+ col_index++ + pad_space+ "| ");
+//			if(col_index>9) {
+//				pad_space =" ";
+//			}
+			System.out.print(pad_string(col_index++)+"|");
             for(int j=0;j<grid[i].length;j++){
-                System.out.print(grid[i][j] + " | ");
+            	if(agent.getI()== i && agent.getJ() ==j){
+            		if(grid[i][j] instanceof Ship) {
+            			System.out.print(pad_string(((Ship)(grid[i][j])).getNoOfPassengers()+"*") + "|");
+            		}
+            		else {
+            			System.out.print(pad_string(grid[i][j] + "*")+"|");
+            		}
+            		
+            	}
+            	else{
+            		if(grid[i][j] instanceof Ship) {
+            			System.out.print(pad_string(((Ship)(grid[i][j])).getNoOfPassengers()) + "|");
+            		}
+            		else {
+            			System.out.print(pad_string(grid[i][j]+"")+"|");
+            		}
+            		
+//            		System.out.print(pad_string(grid[i][j]+"")+ "|");
+            		
+            	}
             }
             System.out.println();
         }
+		System.out.println("-----------------------------------------------------------------");
+	}
+	public static void visualizeGrid(StateNode state) {
+		Cell[][] grid = state.getGrid();
+		Agent agent = state.getAgent();
+		int col_index=0;
+
+		System.out.print(pad_string(-1)+ "|");
+		for(int row_index=0;row_index<grid[0].length;row_index++){
+
+			System.out.print(pad_string(row_index )+"|");
+		}
+        System.out.println();
+
+		for(int i=0;i<grid.length;i++){
+
+			System.out.print(pad_string(col_index++)+"|");
+            for(int j=0;j<grid[i].length;j++){
+            	if(agent.getI()== i && agent.getJ() ==j){
+            		if(grid[i][j] instanceof Ship) {
+            			System.out.print(pad_string(((Ship)(grid[i][j])).getNoOfPassengers()+"*") + "|");
+            		}
+            		else {
+            			System.out.print(pad_string(grid[i][j] + "*")+"|");
+            		}
+            		
+            	}
+            	else{
+            		if(grid[i][j] instanceof Ship) {
+            			System.out.print(pad_string(((Ship)(grid[i][j])).getNoOfPassengers()) + "|");
+            		}
+            		else {
+            			System.out.print(pad_string(grid[i][j]+"")+"|");
+            		}
+            		
+
+            		
+            	}
+            }
+            System.out.println();
+        }
+		System.out.println("--------------------"+"depth:"+ state.depth+", cost:"+ state.path_cost+
+				",operator: " + state.operator + ",capacity:"+ agent.getRemainingCapacity()+ "--------------------");
 	}
     public static String solve(String grid_string, String strategy, boolean visualize){
-        Cell [][] grid = instantiateGrid(grid_string);
-        CoastGuard problem = new CoastGuard(grid);
+        //Cell [][] grid = instantiateGrid(grid_string);
+        CoastGuard problem = new CoastGuard(instantiateGrid(grid_string));
         switch(strategy){
-            case "BF":// implement breadth-first search
+            case "BF":problem.solveBFS();
                 break;
             case "DF":// implement depth-first search
                 break;
@@ -201,7 +303,114 @@ public class CoastGuard extends SearchProblem{
         }
         return "";
     }
+    public void printQueue() {
+    	System.out.println(searchQueue.size());
+    }
+    public void solveBFS() {
+    	while(!searchQueue.isEmpty()) {
+    		StateNode peek = searchQueue.remove();
+    		visualizeGrid(peek);
+    		if(peek.isGoal()) {
+    			return;
+//    			searchQueue.clear();
+//    			isVisitedDict.clear();
+//    			searchQueue.add(peek);
+    		}
+    		else {
+    			ArrayList<StateNode> nextNodes = getNextStates(peek);
+    			for (int i = 0; i < nextNodes.size(); i++) {
+					searchQueue.add(nextNodes.get(i));
+				}
+//    			printQueue();
+    		}
+    	}
+    }
+    public static ArrayList<StateNode> getNextStates(StateNode parent) {
+    	ArrayList<StateNode> neighbors= new ArrayList<StateNode>();
+    	// update parent state
+    	Agent agent = parent.agent;
+//    	Cell[][] grid = parent.grid;
+    	Cell[][] newGrid= generalUpdateState(parent).getGrid();
+    	if(agent.getI()<height-1 && parent.operator!="up") {
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI() +1, agent.getJ());
+    		neighbors.add(new StateNode(newGrid,newAgent,parent,"down",parent.depth+1,parent.path_cost+1));
+    	}
+    	if(agent.getI()>0 && parent.operator!="down") {
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI() -1, agent.getJ());
+    		neighbors.add(new StateNode(newGrid,newAgent,parent,"up",parent.depth+1,parent.path_cost+1));
+    	}
+    	if(agent.getJ()<width-1 && parent.operator!="left") {
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ()+1);
+    		neighbors.add(new StateNode(newGrid,newAgent,parent, "right",parent.depth+1,parent.path_cost+1));
+    	}
+    	if(agent.getJ()>0 && parent.operator!="right") {
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ()-1);
+    		neighbors.add(new StateNode(newGrid, newAgent, parent, "left",parent.depth+1,parent.path_cost+1));
+    	}
+    	Cell currentCell = newGrid[agent.getI()][agent.getJ()];
+    	if(currentCell instanceof Ship && !((Ship)(currentCell)).isWreck()) {
+    		Cell [][]pickupGrid = cloneGrid(newGrid);
+    		Ship ship = ((Ship)(pickupGrid[agent.getI()][agent.getJ()]));
+    		int retrivablePeople= Math.min(agent.getRemainingCapacity(), ship.getNoOfPassengers());
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(), agent.getPassengersOnBoard() + retrivablePeople);
+    		// update passengers on board the ship of the new Grid
+    		ship.setNoOfPassengers(ship.getNoOfPassengers()-retrivablePeople);
+        	neighbors.add(new StateNode(pickupGrid, newAgent , parent,"pickup",parent.depth+1,parent.path_cost+1));
+    	}
+    	
+    	else if(currentCell instanceof Ship && ((Ship)(currentCell)).isWreck() && ((Ship)(currentCell)).hasBlackBox()) {
+    		Cell [][]retrieveGrid = cloneGrid(newGrid);
+    		Ship ship = ((Ship)(retrieveGrid[agent.getI()][agent.getJ()]));
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ());
+    		ship.setBlackBoxDamage(20);
+    		// update the box on the ship
+        	neighbors.add(new StateNode(retrieveGrid, newAgent , parent,"retrieve",parent.depth+1,parent.path_cost+1));
+    	}
+    	if(currentCell instanceof Station && agent.getPassengersOnBoard()>0) {
+    		Cell [][]dropGrid = cloneGrid(newGrid);
+    		//int dropablePeople= agent.getPassengersOnBoard();
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(),0);
+    		newAgent.setPassengersOnBoard(0);
+        	neighbors.add(new StateNode(dropGrid, newAgent , parent,"drop",parent.depth+1,parent.path_cost+1));
+
+    	}
+    	return neighbors;
+    }
+    public static Cell[][]cloneGrid(Cell[][]grid){
+    	Cell [][] newGrid = new Cell [grid.length][grid[0].length];
+		for (int i = 0; i < newGrid.length; i++) {
+			for (int j = 0; j < newGrid[i].length; j++) {
+				newGrid[i][j] = grid[i][j].clone();
+			}
+		}
+		return newGrid;
+    }
+    public static StateNode generalUpdateState(StateNode parent) {
+    	//passengers.blackbox_health,has_blackbox
+    	// ships decrement no of passengers
+    	StateNode newState = parent.clone();
+    	for (int i = 0; i < ships_positions.size(); i++) {
+    		int row = ships_positions.get(i)[0];
+    		int col = ships_positions.get(i)[1];
+    		Cell [][] newGrid = newState.getGrid();
+    		Ship ship= (Ship)(newGrid[row][col]);
+    		ship.decrement();
+		}
+    	return newState;
+    }
     public static void main(String[] args) {
-         solve(genGrid(),"",false);
+//    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
+    	solve(genGrid(),"BF",false);
+//    	problem.solve(null, null, false)
+//      solve(genGrid(),"BF",false);
+//    	Cell[][] grid = instantiateGrid(genGrid());
+//    	Agent agent = null;
+//    	StateNode a = new StateNode(grid, agent, null, null, 0, 0);
+//    	StateNode b = a.clone();
+//    	((Ship)(a.grid[0][0])).setNoOfPassengers(0);
+//    	System.out.println("-------------" + ((Ship)(a.grid[0][0])).getNoOfPassengers());
+//    	visualizeGrid(a.grid);
+//    	System.out.println("-------------" + ((Ship)(b.grid[0][0])).getNoOfPassengers());
+//    	visualizeGrid(b.grid);
     }
 }
