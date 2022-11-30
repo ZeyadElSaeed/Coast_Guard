@@ -209,7 +209,7 @@ public class CoastGuard extends SearchProblem{
 //			if(row_index>9) {
 //				pad_space =" ";
 //			}
-			System.out.print(pad_string(row_index )+"|");
+			System.out.print(pad_string(row_index)+"|");
 		}
         System.out.println();
 //        pad_space = "  ";
@@ -330,7 +330,7 @@ public class CoastGuard extends SearchProblem{
     	// update parent state
     	Agent agent = parent.agent;
 //    	Cell[][] grid = parent.grid;
-    	Cell[][] newGrid= generalUpdateState(parent).getGrid();
+    	Cell[][] newGrid= generalUpdateState(cloneGrid(parent.getGrid()));
     	if(agent.getI()<height-1 && parent.operator!="up") {
     		Agent newAgent = agent.copyAgentWithModification(agent.getI() +1, agent.getJ());
     		neighbors.add(new StateNode(newGrid,newAgent,parent,"down",parent.depth+1,parent.path_cost+1));
@@ -349,22 +349,22 @@ public class CoastGuard extends SearchProblem{
     	}
     	Cell currentCell = newGrid[agent.getI()][agent.getJ()];
     	if(currentCell instanceof Ship && !((Ship)(currentCell)).isWreck()) {
-    		Cell [][]pickupGrid = cloneGrid(newGrid);
+    		Cell [][]pickupGrid = cloneGrid(parent.getGrid());
     		Ship ship = ((Ship)(pickupGrid[agent.getI()][agent.getJ()]));
-    		int retrivablePeople= Math.min(agent.getRemainingCapacity(), ship.getNoOfPassengers());
-    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(), agent.getPassengersOnBoard() + retrivablePeople);
+    		int retrievablePeople= Math.min(agent.getRemainingCapacity(), ship.getNoOfPassengers());
+    		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ(), agent.getPassengersOnBoard() + retrievablePeople);
     		// update passengers on board the ship of the new Grid
-    		ship.setNoOfPassengers(ship.getNoOfPassengers()-retrivablePeople);
-        	neighbors.add(new StateNode(pickupGrid, newAgent , parent,"pickup",parent.depth+1,parent.path_cost+1));
+    		ship.setNoOfPassengers(ship.getNoOfPassengers()-retrievablePeople);
+        	neighbors.add(new StateNode(generalUpdateState(pickupGrid), newAgent , parent,"pickup",parent.depth+1,parent.path_cost+1));
     	}
-    	
+
     	else if(currentCell instanceof Ship && ((Ship)(currentCell)).isWreck() && ((Ship)(currentCell)).hasBlackBox()) {
-    		Cell [][]retrieveGrid = cloneGrid(newGrid);
+    		Cell [][]retrieveGrid = cloneGrid(parent.getGrid());
     		Ship ship = ((Ship)(retrieveGrid[agent.getI()][agent.getJ()]));
     		Agent newAgent = agent.copyAgentWithModification(agent.getI(), agent.getJ());
     		ship.setBlackBoxDamage(20);
     		// update the box on the ship
-        	neighbors.add(new StateNode(retrieveGrid, newAgent , parent,"retrieve",parent.depth+1,parent.path_cost+1));
+        	neighbors.add(new StateNode(generalUpdateState(retrieveGrid), newAgent , parent,"retrieve",parent.depth+1,parent.path_cost+1));
     	}
     	if(currentCell instanceof Station && agent.getPassengersOnBoard()>0) {
     		Cell [][]dropGrid = cloneGrid(newGrid);
@@ -385,18 +385,17 @@ public class CoastGuard extends SearchProblem{
 		}
 		return newGrid;
     }
-    public static StateNode generalUpdateState(StateNode parent) {
+    public static Cell[][] generalUpdateState(Cell [][]parent) {
     	//passengers.blackbox_health,has_blackbox
     	// ships decrement no of passengers
-    	StateNode newState = parent.clone();
     	for (int i = 0; i < ships_positions.size(); i++) {
     		int row = ships_positions.get(i)[0];
     		int col = ships_positions.get(i)[1];
-    		Cell [][] newGrid = newState.getGrid();
+    		Cell [][] newGrid = parent;
     		Ship ship= (Ship)(newGrid[row][col]);
     		ship.decrement();
 		}
-    	return newState;
+    	return parent;
     }
     public static void main(String[] args) {
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
