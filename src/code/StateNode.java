@@ -19,26 +19,25 @@ public class StateNode {
 	}
 
 	public boolean isGoal() {
-    	// case 1 
+    	// case 1
     	if(endGame()) {
-    		printPath();
+    		String result = printPath("");
     		System.out.println(agent.getBlackBoxes());
     	}
     	
     	return endGame();
     }
 	
-	public void printPath() {
+	public String printPath(String result) {
 		if(this.parent!=null) {
-			parent.printPath();
+			result = "," + operator + parent.printPath(result);
 			System.out.print("," + operator);
 		}
 		else {
 			System.out.println("-----------------------------------------");
 			visualizeGrid();
 		}
-		
-		
+		return result;
 	}
 
 	public boolean endGame() {
