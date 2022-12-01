@@ -3,6 +3,7 @@ package code;
 public class Ship extends Cell{
     public int no_of_passengers;
     int blackbox_damage;
+	static int max_black_box_damage = 7;
 
     public Ship(int i, int j, int no_of_passengers){
         super(i,j);
@@ -15,7 +16,7 @@ public class Ship extends Cell{
 		this.blackbox_damage = blackbox_damage;
 	}
 	public boolean hasBlackBox() {
-		return blackbox_damage<20;
+		return blackbox_damage<max_black_box_damage;
 	}
 	public int getNoOfPassengers() {
 		return no_of_passengers;
@@ -27,7 +28,7 @@ public class Ship extends Cell{
 		return blackbox_damage;
 	}
 	public void setBlackBoxDamage(int blackbox_damage) {
-		this.blackbox_damage = (this.blackbox_damage > 20) ? 20:blackbox_damage;
+		this.blackbox_damage = (this.blackbox_damage > max_black_box_damage) ? max_black_box_damage:blackbox_damage;
 	}
 	public boolean isWreck() {
 		if(no_of_passengers == 0) return true;
@@ -38,7 +39,7 @@ public class Ship extends Cell{
 			no_of_passengers--;
 			if (no_of_passengers == 0) blackbox_damage = 1;
 		}
-		else if(blackbox_damage<20){
+		else if(blackbox_damage<max_black_box_damage){
 				blackbox_damage++;
 		}
 	}

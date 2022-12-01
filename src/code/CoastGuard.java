@@ -4,16 +4,18 @@ import java.lang.Math;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.*;
+import java.util.Stack;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 4;
-    static int grid_max = 4;
+    static int grid_min = 5;
+    static int grid_max = 5;
     static int agent_min = 30;
     static int agent_max = 100;
     static int passenger_min = 1; //why not 0 as in the description?
     static int passenger_max = 10;
     static int black_box_life = 4;
     Queue<StateNode> searchQueue;
+	Stack<StateNode> searchStack;
     Map <String, StateNode> isVisitedDict = new Hashtable<String, StateNode>();
     // Agent agent;
     static int width;
@@ -23,9 +25,11 @@ public class CoastGuard extends SearchProblem{
     	Cell [][]initialGrid = ((Cell [][])(info[0]));
     	Agent agent = ((Agent)(info[1]));
         this.operators = new String[]{"up","down","right","left","pickup","drop","retrieve"};
-        searchQueue = new LinkedList<StateNode>(); 
+        searchQueue = new LinkedList<StateNode>();
+		searchStack = new Stack<StateNode>();
         this.initial_state = new StateNode(initialGrid,agent, null,null,0,0);
         searchQueue.add(initial_state);
+		searchStack.push(initial_state);
         isVisitedDict.put(agent.getI()+","+agent.getJ(),initial_state);
         height = initialGrid.length;
         width = initialGrid[0].length;
@@ -290,9 +294,9 @@ public class CoastGuard extends SearchProblem{
         //Cell [][] grid = instantiateGrid(grid_string);
         CoastGuard problem = new CoastGuard(instantiateGrid(grid_string));
         switch(strategy){
-            case "BF":problem.solveBFS();
+            case "BF": problem.solveBFS();
                 break;
-            case "DF":// implement depth-first search
+            case "DF": problem.solveDFS();
                 break;
             case "ID":// implement depth-first search
                 break;
@@ -306,38 +310,42 @@ public class CoastGuard extends SearchProblem{
     public void printQueue() {
     	System.out.println(searchQueue.size());
     }
+	public void printStack() {
+		System.out.println(searchStack.size());
+	}
     public void solveBFS() {
     	while(!searchQueue.isEmpty()) {
     		StateNode peek = searchQueue.remove();
-//    		if (peek.operator == "pickup") {
-//    			System.out.println();
-//    		}
-//    		if (peek.operator == "retrieve") {
-//    			System.out.println();
-//    		}
-//    		if (peek.operator == "drop") {
-//    			System.out.println();
-//    		}
-			if(peek.path_cost == 11 && peek.operator=="drop"){
-				System.out.println();
-			}
     		visualizeGrid(peek);
 			System.out.println(searchQueue.size());
     		if(peek.isGoal()) {
     			return;
-//    			searchQueue.clear();
-//    			isVisitedDict.clear();
-//    			searchQueue.add(peek);
     		}
     		else {
     			ArrayList<StateNode> nextNodes = getNextStates(peek);
     			for (int i = 0; i < nextNodes.size(); i++) {
 					searchQueue.add(nextNodes.get(i));
 				}
-//    			printQueue();
     		}
     	}
     }
+
+	public void solveDFS() {
+		while(!searchStack.isEmpty()) {
+			StateNode peek = searchStack.pop();
+			visualizeGrid(peek);
+			System.out.println(searchStack.size());
+			if(peek.isGoal()) {
+				return;
+			}
+			else {
+				ArrayList<StateNode> nextNodes = getNextStates(peek);
+				for (int i = 0; i < nextNodes.size(); i++) {
+					searchStack.push(nextNodes.get(i));
+				}
+			}
+		}
+	}
     
     public static boolean repeatedAncestorsAgentPositions(StateNode node, int i, int j) {
     	if (node.parent == null) {
@@ -364,7 +372,7 @@ public class CoastGuard extends SearchProblem{
     	else {
     		return false;
     	}
-    } 
+    }
     
     public static ArrayList<StateNode> getNextStates(StateNode parent) {
     	ArrayList<StateNode> neighbors= new ArrayList<StateNode>();
@@ -449,8 +457,8 @@ public class CoastGuard extends SearchProblem{
     public static void main(String[] args) {
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
 //    	solve("2,2;63;0,1;1,1;0,0,7;","BF",false);
-    	solve("4,4;73;2,2;2,1;0,1,4,0,2,4,1,1,7,2,0,3,2,2,10,2,3,3,3,0,8,3,2,3,3,3,1;","BF",false);
-//		solve(genGrid(),"BF",false);
+//    	solve("5,5;47;1,0;0,0,2,0,2,1,2,4,3,2,3,3;0,1,3,0,2,5,0,4,7,1,1,5,1,2,10,1,4,5,3,0,3,3,1,4,4,0,4,4,1,5,4,2,7,4,4,5;","BF",false);
+		solve(genGrid(),"DF",false);
 //    	problem.solve(null, null, false)
 //      solve(genGrid(),"BF",false);
 //    	Cell[][] grid = instantiateGrid(genGrid());
