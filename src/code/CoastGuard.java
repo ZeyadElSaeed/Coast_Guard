@@ -7,8 +7,8 @@ import java.util.*;
 import java.util.Stack;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 3;
-    static int grid_max = 3;
+    static int grid_min = 4;
+    static int grid_max = 4;
     static int agent_min = 30;
     static int agent_max = 100;
     static int passenger_min = 1; //why not 0 as in the description?
@@ -66,13 +66,15 @@ public class CoastGuard extends SearchProblem{
         // Generate the location of the coast guard ship
         int agent_row_loc = GenerateRandomNumber( m-1 , 0 );
         int agent_col_loc = GenerateRandomNumber( n-1 , 0 );
+        grid[agent_row_loc][agent_col_loc]= -1;
 //		grid[agent_row_loc][agent_col_loc]
 //        grid[ agent_row_loc ][ agent_col_loc ] = -1; // here
         System.out.println("Agent_position: "+ agent_row_loc +" "+ agent_col_loc);
-        // Generate the number of the ships
-        int ship_number = GenerateRandomNumber( cells_number-1 , 1 );
+        // Generate the number of the ships at least one ship, at most cells-2 ships leaving 2 places for a station and agent
+        int ship_number = GenerateRandomNumber( cells_number-2 , 1 );
         System.out.println("ship_number: "+ ship_number);
-        // Generate the number of the stations ( The remaining number after ships and agent)
+        // Generate the number of the stations ( The remaining number after ships and agent), at least 1 station, at most cells-2
+        //leaving 2 places, one for the ship and the other for the agent
         int remain_locations = cells_number - ship_number-1 ;
         int station_number = GenerateRandomNumber( remain_locations , 1 );
         System.out.println("station_number: "+ station_number);
@@ -465,9 +467,9 @@ public class CoastGuard extends SearchProblem{
     public static void main(String[] args) {
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
 		String grid_str = genGrid();
-    	System.out.println(solve(genGrid(),"BF",false));
+    	System.out.println(solve(grid_str,"BF",false));
 		System.out.println(grid_str);
-
+//    	GenerateRandomNumber(40,1);
 //    	solve("5,5;47;1,0;0,0,2,0,2,1,2,4,3,2,3,3;0,1,3,0,2,5,0,4,7,1,1,5,1,2,10,1,4,5,3,0,3,3,1,4,4,0,4,4,1,5,4,2,7,4,4,5;","BF",false);
 //		solve(genGrid(),"DF",false);
 //    	problem.solve(null, null, false)
