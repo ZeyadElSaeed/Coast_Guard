@@ -49,4 +49,7 @@ public class Agent extends Cell{
     public Agent copyAgentWithModification(int i, int j, int newCapacity, int blackBoxes) {
     	return new Agent(i, j, this.max_capacity, this.max_capacity-newCapacity, blackBoxes);
     }
+    public Agent clone(){
+        return new Agent(i, j, this.max_capacity, this.remaining_capacity, this.blackBoxes);
+    }
 }
