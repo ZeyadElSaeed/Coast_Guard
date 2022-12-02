@@ -3,7 +3,7 @@ package code;
 public class Ship extends Cell {
     public int no_of_passengers;
     int blackbox_damage;
-	static int max_black_box_damage = 7;
+	static int max_black_box_damage = 20;
 
     public Ship(int i, int j, int no_of_passengers){
         super(i,j);

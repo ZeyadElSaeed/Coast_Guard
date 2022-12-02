@@ -7,8 +7,8 @@ import java.util.*;
 import java.util.Stack;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 10;
-    static int grid_max = 10;
+    static int grid_min = 8;
+    static int grid_max = 8;
     static int agent_min = 30;
     static int agent_max = 100;
     static int passenger_min = 1; //why not 0 as in the description?
@@ -359,7 +359,7 @@ public class CoastGuard extends SearchProblem{
     				if(!insertInsideVisitedIfNotThere(nextNodes.get(i).getAgent().getAgentInfoString(), nextNodes.get(i))) {
     					searchQueue.add(nextNodes.get(i));
     				}
-					
+//    				searchQueue.add(nextNodes.get(i));
 				}
     		}
     	}
@@ -501,9 +501,9 @@ public class CoastGuard extends SearchProblem{
     public static void main(String[] args) {
     	///Cell[][] grid,Agent agent, StateNode parent, String operator, int depth, int path_cost
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
-    	String grid_str = "5,6;50;0,1;0,4,3,3;1,1,90;";
-//		String grid_str = genGrid();
-    	System.out.println(solve(grid_str,"DF",false));
+//    	String grid_str = "5,6;50;0,1;0,4,3,3;1,1,90;";
+		String grid_str = genGrid();
+    	System.out.println(solve(grid_str,"BF",false));
 		System.out.println(grid_str);
     	
 //    	GenerateRandomNumber(40,1);

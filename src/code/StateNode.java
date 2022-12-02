@@ -1,6 +1,5 @@
 package code;
 
-import java.util.Iterator;
 
 public class StateNode {
 	Cell[][] grid;
