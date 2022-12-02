@@ -7,16 +7,17 @@ import java.util.*;
 import java.util.Stack;
 
 public class CoastGuard extends SearchProblem{
-    static int grid_min = 4;
-    static int grid_max = 4;
+    static int grid_min = 10;
+    static int grid_max = 10;
     static int agent_min = 30;
     static int agent_max = 100;
     static int passenger_min = 1; //why not 0 as in the description?
     static int passenger_max = 10;
-    static int black_box_life = 4;
+    static int black_box_life = 20;
     Queue<StateNode> searchQueue;
 	Stack<StateNode> searchStack;
-    Map <String, StateNode> isVisitedDict = new Hashtable<String, StateNode>();
+    Map <String, ArrayList<StateNode>> isVisitedDict = new Hashtable<String, ArrayList<StateNode>>();
+//    Map <String, StateNode> isVisitedDict = new Hashtable<String, StateNode>();
     // Agent agent;
     static int width;
     static int height;
@@ -30,7 +31,8 @@ public class CoastGuard extends SearchProblem{
         this.initial_state = new StateNode(initialGrid,agent, null,null,0,0);
         searchQueue.add(initial_state);
 		searchStack.push(initial_state);
-        isVisitedDict.put(agent.getI()+","+agent.getJ(),initial_state);
+//		isVisitedDict.put(agent.getI()+","+agent.getJ(),initial_state);
+        insertInsideVisitedIfNotThere(agent.getAgentInfoString(),initial_state);
         height = initialGrid.length;
         width = initialGrid[0].length;
         // pass grid copy as input
@@ -40,8 +42,27 @@ public class CoastGuard extends SearchProblem{
         //if yes initialize the queue again and reset the visited DS
         this.state_space = new StateNode[2*initialGrid.length];
     }
-    
-    
+    //takes a node and the agent position and inserts the Statenode inside the arraylist of statenodes at that position if possible
+    //the method return true if the node has been visited before, false otherwise
+    public boolean insertInsideVisitedIfNotThere(String pos, StateNode node) {
+    	ArrayList<StateNode> nodes = isVisitedDict.get(pos);
+    	if(nodes ==null) {
+    		
+    		nodes = new ArrayList<StateNode>();
+    		nodes.add(node);
+    		isVisitedDict.put(pos, nodes);
+    	}
+    	else {
+    		for(int i=0; i<nodes.size();i++) {
+        		if(node.sameAs(nodes.get(i))) {
+        			return true;
+        		}
+        	}
+        	nodes.add(node);
+        	isVisitedDict.put(pos, nodes);
+    	}
+    	return false;	
+    }
     
 
 
@@ -320,9 +341,10 @@ public class CoastGuard extends SearchProblem{
     public String solveBFS() {
 		String result = "";
     	while(!searchQueue.isEmpty()) {
+
     		StateNode peek = searchQueue.remove();
     		visualizeGrid(peek);
-			System.out.println(searchQueue.size());
+			System.out.println("search queue size: "+searchQueue.size());
     		if(peek.isGoal()) {
 				result = peek.printPath("");
     			break;
@@ -330,11 +352,15 @@ public class CoastGuard extends SearchProblem{
     		else {
     			ArrayList<StateNode> nextNodes = getNextStates(peek);
     			for (int i = 0; i < nextNodes.size(); i++) {
-					searchQueue.add(nextNodes.get(i));
+    				if(!insertInsideVisitedIfNotThere(nextNodes.get(i).getAgent().getAgentInfoString(), nextNodes.get(i))) {
+    					searchQueue.add(nextNodes.get(i));
+    				}
+//    				searchQueue.add(nextNodes.get(i));
+					
 				}
     		}
     	}
-		return " res:" + result.substring(1,result.length());
+		return "res:" + result.substring(1,result.length());
     }
 
 	public String solveDFS() {
@@ -459,16 +485,20 @@ public class CoastGuard extends SearchProblem{
     		int row = ships_positions.get(i)[0];
     		int col = ships_positions.get(i)[1];
     		Cell [][] newGrid = parent;
+//    		System.out.println(newGrid[row][col]+" "+ row+ " "+ col+ " "+ (newGrid[row][col]instanceof Cell));
     		Ship ship= (Ship)(newGrid[row][col]);
     		ship.decrement();
 		}
     	return parent;
     }
     public static void main(String[] args) {
+    	///Cell[][] grid,Agent agent, StateNode parent, String operator, int depth, int path_cost
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
-		String grid_str = genGrid();
+    	String grid_str = "5,6;50;0,1;0,4,3,3;1,1,90;";
+//		String grid_str = genGrid();
     	System.out.println(solve(grid_str,"BF",false));
 		System.out.println(grid_str);
+    	
 //    	GenerateRandomNumber(40,1);
 //    	solve("5,5;47;1,0;0,0,2,0,2,1,2,4,3,2,3,3;0,1,3,0,2,5,0,4,7,1,1,5,1,2,10,1,4,5,3,0,3,3,1,4,4,0,4,4,1,5,4,2,7,4,4,5;","BF",false);
 //		solve(genGrid(),"DF",false);

@@ -29,4 +29,7 @@ public class Cell {
 	public Cell clone() {
 		return new Cell(i,j);
 	}
+//	public int hashCode() {
+//		return i*1 + j*10;
+//	}
 }

@@ -1,5 +1,6 @@
 package code;
 
+import java.util.Iterator;
 
 public class StateNode {
 	Cell[][] grid;
@@ -156,7 +157,35 @@ public class StateNode {
     	}
 		return padded;
 	}
-    
+	
+	public boolean sameAs(StateNode node) {
+		Cell[][] compGrid = node.getGrid();
+		for(int i=0; i<compGrid.length; i++) {
+			for(int j=0; j< compGrid[0].length; j++) {
+				if (compGrid[i][j] instanceof Ship && grid[i][j] instanceof Ship) {
+					Ship ship1 = (Ship)compGrid[i][j];
+					Ship ship2 = (Ship)grid[i][j];
+					if(!ship1.sameAs(ship2))
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+//	public int getGridHC() {
+//		int counter = 0;
+//		for( int i=0; i< grid.length; i++) {
+//			for(int j=0; j<grid[0].length;j++) {
+//				
+//			}
+//		}
+//	}
+//	public int hashCode() {
+//		int agentHC = agent.hashCode();
+//		
+//		
+//		return agentHC;
+//	}
 //	public String toString() {
 //		visualizeGrid();
 //		return operator +" "+ depth + " " + path_cost + " " + agent.getI() + " " + agent.getJ();

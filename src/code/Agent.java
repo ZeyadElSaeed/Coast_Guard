@@ -52,4 +52,10 @@ public class Agent extends Cell{
     public Agent clone(){
         return new Agent(i, j, this.max_capacity, this.remaining_capacity, this.blackBoxes);
     }
+    public String getAgentInfoString() {
+    	return i +","+j+","+ remaining_capacity+ ","+ blackBoxes;
+    }
+//    public int hashCode() {
+//		return max_capacity*1000 + remaining_capacity*100 + blackBoxes + super.getI()*10 + super.getJ()*1;
+//	}
 }

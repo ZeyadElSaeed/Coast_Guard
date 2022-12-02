@@ -1,6 +1,6 @@
 package code;
 
-public class Ship extends Cell{
+public class Ship extends Cell {
     public int no_of_passengers;
     int blackbox_damage;
 	static int max_black_box_damage = 7;
@@ -46,4 +46,13 @@ public class Ship extends Cell{
 	public Ship clone() {
 		return new Ship(i,j,no_of_passengers,blackbox_damage);
 	}
+	
+	public boolean sameAs(Ship inpShip) {
+		if (no_of_passengers == inpShip.getNoOfPassengers() && blackbox_damage == inpShip.getBlackBoxDamage())
+			return true;
+		return false;
+	}
+//	public int hashCode() {
+//		return 100*no_of_passengers + 100*blackbox_damage + super.getI()*1000+ super.getJ()*10000;
+//	}
 }
