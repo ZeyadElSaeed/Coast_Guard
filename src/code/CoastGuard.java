@@ -191,7 +191,8 @@ public class CoastGuard extends SearchProblem{
         String [] grid_split = grid_string.split(";");
         // Initiate grid dimensions
         String [] dimensions = grid_split[0].split(",");
-        Cell [][] grid = new Cell[Integer.parseInt(dimensions[0])][Integer.parseInt(dimensions[1])];
+        //XXX changed the assignment of the width and height to match the project desctiption
+        Cell [][] grid = new Cell[Integer.parseInt(dimensions[1])][Integer.parseInt(dimensions[0])];
 
 
         // creating and localizing agent
@@ -203,14 +204,17 @@ public class CoastGuard extends SearchProblem{
 
         // creating and localizing Stations
         String [] stations_position = grid_split[3].split(",");
-        for(int i =0;i<stations_position.length;i=i+2){
+        //XXX changed the condition by -1
+        for(int i =0;i<stations_position.length-1;i=i+2){
+        	System.out.println(stations_position[i+1]);
             grid[Integer.parseInt(stations_position[i])][Integer.parseInt(stations_position[i+1])] =
                     new Station(Integer.parseInt(stations_position[i]), Integer.parseInt(stations_position[i+1]));
         }
         // creating and localizing ships
         String [] ships_position_string = grid_split[4].split(",");
         ships_positions = new ArrayList<int[]>();
-        for(int i =0;i<ships_position_string.length;i=i+3){
+        //XXX changed the condition by -2
+        for(int i =0;i<ships_position_string.length-2;i=i+3){
             grid[Integer.parseInt(ships_position_string[i])][Integer.parseInt(ships_position_string[i+1])] =
                     new Ship(Integer.parseInt(ships_position_string[i]), Integer.parseInt(ships_position_string[i+1]), Integer.parseInt(ships_position_string[i+2]));
             ships_positions.add(new int[] {Integer.parseInt(ships_position_string[i]), Integer.parseInt(ships_position_string[i+1])});
@@ -330,7 +334,7 @@ public class CoastGuard extends SearchProblem{
             case "AS":// implement depth-first search
                 break;
         }
-        return result;
+        return result+";0"+";0"+";0";
     }
     public void printQueue() {
     	System.out.println(searchQueue.size());
@@ -355,7 +359,6 @@ public class CoastGuard extends SearchProblem{
     				if(!insertInsideVisitedIfNotThere(nextNodes.get(i).getAgent().getAgentInfoString(), nextNodes.get(i))) {
     					searchQueue.add(nextNodes.get(i));
     				}
-//    				searchQueue.add(nextNodes.get(i));
 					
 				}
     		}
@@ -376,7 +379,11 @@ public class CoastGuard extends SearchProblem{
 			else {
 				ArrayList<StateNode> nextNodes = getNextStates(peek);
 				for (int i = 0; i < nextNodes.size(); i++) {
-					searchStack.push(nextNodes.get(i));
+					if(!insertInsideVisitedIfNotThere(nextNodes.get(i).getAgent().getAgentInfoString(), nextNodes.get(i))) {
+						searchStack.push(nextNodes.get(i));
+    				}
+					
+//					searchStack.push(nextNodes.get(i));
 				}
 			}
 		}
@@ -496,7 +503,7 @@ public class CoastGuard extends SearchProblem{
 //    	CoastGuard problem = new CoastGuard(instantiateGrid(genGrid()));
     	String grid_str = "5,6;50;0,1;0,4,3,3;1,1,90;";
 //		String grid_str = genGrid();
-    	System.out.println(solve(grid_str,"BF",false));
+    	System.out.println(solve(grid_str,"DF",false));
 		System.out.println(grid_str);
     	
 //    	GenerateRandomNumber(40,1);
